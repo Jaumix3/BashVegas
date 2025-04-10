@@ -1,6 +1,13 @@
-Three gamblers making gambling not so bad. 
+*Three Gamblers Making Gambling Not So Bad*
 
-This is a casino made in bash, so you can gambl without worry for your money, we all know you are poor (just like us). 
+This is a casino made in Bash, so you can gamble without worrying about your money. We all know you're poor (just like us).
 
-So, you simply clone the repository locally and exec the script on your terminal
+Simply clone the repository locally and run the script in your terminal.
 
+If you encounter any problems, please reach out to us by creating a PR, and we'll help you as much as we can. Just kidding, feel free to ask ChatGPT as well!
+
+Finally, we are developing this for a class project, but it's cool to share it with all of you.
+
+Thanks for your attention.
+
+BashVegas Team
