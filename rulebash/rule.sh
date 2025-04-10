@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 guardar_saldo() {
     echo "$1" > saldo.txt
 }
@@ -13,6 +14,46 @@ cargar_saldo() {
     cat saldo.txt
 }
 
+mostrar_ruleta() {
+    local numero=$1
+    local line1="---------------------"
+    local line2="|                   |"
+    
+    echo "$line1"
+    
+    if [[ $numero -eq 0 ]]; then
+        echo "|             0             |"
+    else
+        echo "$line2"
+    fi
+    
+    local ruleta=("1" "2" "3" "4" "5" "6" "7" "8" "9" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20" "21" "22" "23" "24" "25" "26" "27" "28" "29" "30" "31" "32" "33" "34" "35" "36" "0")
+    
+    for i in ${!ruleta[@]}; do
+        if [[ ${ruleta[$i]} -eq $numero ]]; then
+            ruleta[$i]="X "  
+        fi
+    done
+    
+
+    echo "|          ${ruleta[-1]}        |"
+    echo "| ${ruleta[0]}  | ${ruleta[1]}  | ${ruleta[2]}  | ${ruleta[3]}  |"
+    echo "| ${ruleta[4]}  | ${ruleta[5]}  | ${ruleta[6]}  | ${ruleta[7]}  |"
+    echo "| ${ruleta[8]} | ${ruleta[9]}  | ${ruleta[10]} | ${ruleta[11]} |"
+    echo "| ${ruleta[12]} | ${ruleta[13]} | ${ruleta[14]} | ${ruleta[15]} |"
+    echo "| ${ruleta[16]} | ${ruleta[17]} | ${ruleta[18]} | ${ruleta[19]} |"
+    echo "| ${ruleta[20]} | ${ruleta[21]} | ${ruleta[22]} | ${ruleta[23]} |"
+    echo "| ${ruleta[24]} | ${ruleta[25]} | ${ruleta[26]} | ${ruleta[27]} |"
+    echo "| ${ruleta[28]} | ${ruleta[29]} | ${ruleta[30]} | ${ruleta[31]} |"
+    echo "| ${ruleta[32]} | ${ruleta[33]} | ${ruleta[34]} | ${ruleta[35]} |"
+    
+    echo "$line2"
+    echo "$line1"
+    
+    echo "Bola en $numero"
+}
+
+# Función de la apuesta
 Apuesta() {
     local saldo=$1
     local apuesta
@@ -24,8 +65,10 @@ Apuesta() {
     local apuesta_negro=0
 
     for i in {1..5}; do
+        echo ""
         read -p "¿Quieres hacer la apuesta $i? [Y/N] " h
         if [[ "$h" == "Y" || "$h" == "y" || "$h" == "" || "$h" == "yes" || "$h" == "Yes" ]]; then
+            echo "----------------------"
             read -p "Haz tu apuesta $i (Rojo, Negro o un número del 0 al 36): " apuesta
 
             while [[ ("$apuesta" == "Rojo" && $apuesta_rojo -eq 1) || ("$apuesta" == "Negro" && $apuesta_negro -eq 1) ]]; do
@@ -59,38 +102,42 @@ Apuesta() {
     done
 
     numganador=$((RANDOM % 37))
-    >&2 echo "La bola ha caído en $numganador."
+    mostrar_ruleta "$numganador" # Mostrar la ruleta con el número donde cayó la bola
 
     for i in "${!apuestas[@]}"; do
         local apuesta="${apuestas[$i]}"
         local cantidad="${cantidades[$i]}"
 
         if [[ "$apuesta" == "$numganador" && $numganador -ne 0 ]]; then
-            >&2 echo "Has ganado una cantidad de: $((cantidad * 4)) por apostar al número $apuesta."
+            echo "¡Has ganado una cantidad de: $((cantidad * 4)) por apostar al número $apuesta!"
             saldo=$((saldo + cantidad * 5))
         elif [[ "$apuesta" == "Rojo" && $((numganador % 2)) -ne 0 && $numganador -ne 0 ]]; then
-            >&2 echo "Has ganado una cantidad de: $((cantidad * 3 / 2)) por apostar a Rojo."
+            echo "¡Has ganado una cantidad de: $((cantidad * 3 / 2)) por apostar a Rojo!"
             saldo=$((saldo + cantidad * 3 / 2))
         elif [[ "$apuesta" == "Negro" && $((numganador % 2)) -eq 0 && $numganador -ne 0 ]]; then
-            >&2 echo "Has ganado una cantidad de: $((cantidad * 3 / 2)) por apostar a Negro."
+            echo "¡Has ganado una cantidad de: $((cantidad * 3 / 2)) por apostar a Negro!"
             saldo=$((saldo + cantidad * 3 / 2))
         elif [[ "$apuesta" == "0" && $numganador -eq 0 ]]; then
-            >&2 echo "Has ganado una cantidad de: $((cantidad * 10)) por apostar al número 0."
+            echo "¡Has ganado una cantidad de: $((cantidad * 10)) por apostar al número 0!"
             saldo=$((saldo + cantidad * 11))
         fi
     done
 
     guardar_saldo "$saldo"
-
-    echo "$saldo"
+    echo "---------------------------"
+    echo "Saldo final después de todas las apuestas: $saldo"
+    echo "---------------------------"
+    return "$saldo"
 }
 
+# Función principal
 main() {
     local saldo
     local h
 
     saldo=$(cargar_saldo)
-    echo "Dispones de un saldo de: $saldo."
+    echo "Bienvenido a la ruleta, tu saldo es: $saldo"
+    echo "---------------------------"
 
     while true; do
         read -p "¿Deseas hacer tus apuestas ahora? [Y/N] " h
