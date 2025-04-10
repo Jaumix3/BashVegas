@@ -2,118 +2,133 @@
 
 # Verificar si el archivo de saldo existe
 if [ ! -f "saldo.txt" ]; then
-    echo "100" > saldo.txt  # Si no existe, asignamos un saldo inicial de 100
+    echo "100" > saldo.txt
 fi
 
-# Leer el saldo desde el archivo
 saldo=$(cat saldo.txt)
 
-# Definir los símbolos de la máquina tragaperras con probabilidad reducida de ganar
-symbols=("1" "1" "1" "C" "C" "C" "B" "B")  # Menos "A" y "B", más "1" y "C"
+# Definir símbolos con distribución ajustada (menos probabilidad de ganar)
+symbols=("1" "1" "A" "A" "B" "B" "C" "C" "C" "C")
+
+# Línies de premi: llistes d’índexs del tauler (0 a 14)
+linies=(
+  "5 6 7 8 9" "0 1 2 3 4" "10 11 12 13 14"
+  "0 6 12 8 4" "10 6 2 8 14" "0 6 7 8 14"
+  "10 6 7 8 4" "5 1 2 3 9" "5 11 12 13 9"
+  "5 1 7 3 9" "5 11 7 13 9" "0 1 7 3 4"
+  "10 11 7 13 14" "0 6 2 8 4" "10 6 12 8 14"
+  "0 6 12 8 4" "10 6 2 8 14" "5 1 7 13 9"
+  "5 11 7 3 9" "0 6 7 8 4"
+)
+
+transmit_png() {
+    data=$(base64 -w 0 "$1")  # -w 0 removes line breaks
+    data="${data//[[:space:]]}"
+    builtin local pos=0
+    builtin local chunk_size=4096
+    while [ $pos -lt ${#data} ]; do
+        builtin printf "\e_G"
+        [ $pos = "0" ] && printf "a=T,f=100,"
+        builtin local chunk="${data:$pos:$chunk_size}"
+        pos=$(($pos+$chunk_size))
+        [ $pos -lt ${#data} ] && builtin printf "m=1"
+        [ ${#chunk} -gt 0 ] && builtin printf ";%s" "${chunk}"
+        builtin printf "\e\\"
+    done
+}
 
 while true; do
-    # Verificar si el jugador tiene saldo
     if (( saldo <= 0 )); then
         echo "¡Te has quedado sin saldo! 😢"
-        
-        # Opción para pedir un préstamo
         read -p "¿Te gustaría pedir un préstamo de 50? (s/n): " prestamo
         if [[ "$prestamo" == "s" ]]; then
-            # Prestar 50 con un interés del 10%
             saldo=50
+            prestamo_activo=true
             echo "Te hemos prestado 50. ¡Recuerda que debes devolverlo con un 10% de interés!"
         else
-            break  # Si no quiere pedir un préstamo, terminamos el juego
+            echo "¡Gracias! ¡Vuelve cuando quieras!"
+            break
         fi
     fi
 
-    # Mostrar el saldo
     echo "Tienes $saldo."
-
-    # Pedir la apuesta
     read -p "¿Cuánto quieres apostar? " apuesta
 
-    # Verificar que la apuesta no sea mayor que el saldo
+    # Handle "all in" case first
+    if [[ "${apuesta,,}" == "all in" ]]; then
+        apuesta=$saldo
+        echo "¡Vas con todo! Apostando $apuesta 💥"
+    fi
+
     if (( apuesta > saldo )); then
-        echo "No tienes suficiente saldo para esa apuesta."
-        continue  # Si no tiene suficiente saldo, continuamos al siguiente giro
+        echo "No tienes suficiente saldo."
+        continue
     fi
 
-    # Generar cuatro símbolos aleatorios por línea (superior, central, inferior, nueva columna)
-    slot1_1=${symbols[$RANDOM % ${#symbols[@]}]}
-    slot1_2=${symbols[$RANDOM % ${#symbols[@]}]}
-    slot1_3=${symbols[$RANDOM % ${#symbols[@]}]}
-    slot1_4=${symbols[$RANDOM % ${#symbols[@]}]}  # Nueva columna
+    # Generar tauler 3x5 (array de 15 elements)
+    tablero=()
+    for i in {0..14}; do
+        tablero[$i]=${symbols[$RANDOM % ${#symbols[@]}]}
+    done
 
-    slot2_1=${symbols[$RANDOM % ${#symbols[@]}]}
-    slot2_2=${symbols[$RANDOM % ${#symbols[@]}]}
-    slot2_3=${symbols[$RANDOM % ${#symbols[@]}]}
-    slot2_4=${symbols[$RANDOM % ${#symbols[@]}]}  # Nueva columna
+    # Mostrar el tauler
+    echo "-------------------------"
+    for fila in 0 1 2; do
+        for col in 0 1 2 3 4; do
+            idx=$((fila * 5 + col))
+            echo -n "| ${tablero[$idx]} "
+        done
+        echo "|"
+    done
+    echo "-------------------------"
 
-    slot3_1=${symbols[$RANDOM % ${#symbols[@]}]}
-    slot3_2=${symbols[$RANDOM % ${#symbols[@]}]}
-    slot3_3=${symbols[$RANDOM % ${#symbols[@]}]}
-    slot3_4=${symbols[$RANDOM % ${#symbols[@]}]}  # Nueva columna
+    # Comprovació de línies guanyadores
+    ganar=0
 
-    # Mostrar el resultado
-    echo "----------------------"
-    echo "| $slot1_1 $slot1_2 $slot1_3 $slot1_4 |"
-    echo "| $slot2_1 $slot2_2 $slot2_3 $slot2_4 |"
-    echo "| $slot3_1 $slot3_2 $slot3_3 $slot3_4 |"
-    echo "----------------------"
+    for i in "${!linies[@]}"; do
+        read -a pos <<< "${linies[$i]}"
+        s1="${tablero[${pos[0]}]}"
+        s2="${tablero[${pos[1]}]}"
+        s3="${tablero[${pos[2]}]}"
+        s4="${tablero[${pos[3]}]}"
+        s5="${tablero[${pos[4]}]}"
 
-    # Comprobar combinaciones en cada línea
-    ganar=0  # Variable para acumular el premio total
+        if [[ "$s1" == "$s2" && "$s2" == "$s3" ]]; then
+            premio=$((apuesta / 2))
+            if [[ "$s3" == "$s4" ]]; then
+                premio=$((apuesta * 1))
+                if [[ "$s4" == "$s5" ]]; then
+                    premio=$((apuesta * 2))
+                fi
+            fi
+            ganar=$((ganar + premio))
+            echo "🎉 Línea $((i+1)) ganadora con '$s1' → +$premio"
+        fi
+    done
 
-    # Línea 1 (superior)
-    if [[ "$slot1_1" == "$slot1_2" && "$slot1_2" == "$slot1_3" && "$slot1_3" == "$slot1_4" ]]; then
-        echo "¡Ganaste 100% en la línea superior! 🎉"
-        ganar=$((ganar + apuesta))  # Premio 100% de la apuesta
-    elif [[ "$slot1_1" == "$slot1_2" || "$slot1_2" == "$slot1_3" || "$slot1_3" == "$slot1_4" ]]; then
-        echo "¡Ganaste 50% en la línea superior! 🤑"
-        ganar=$((ganar + apuesta / 2))  # Premio 50% de la apuesta
-    fi
-
-    # Línea 2 (central)
-    if [[ "$slot2_1" == "$slot2_2" && "$slot2_2" == "$slot2_3" && "$slot2_3" == "$slot2_4" ]]; then
-        echo "¡Ganaste 100% en la línea central! 🎉"
-        ganar=$((ganar + apuesta))  # Premio 100% de la apuesta
-    elif [[ "$slot2_1" == "$slot2_2" || "$slot2_2" == "$slot2_3" || "$slot2_3" == "$slot2_4" ]]; then
-        echo "¡Ganaste 50% en la línea central! 🤑"
-        ganar=$((ganar + apuesta / 2))  # Premio 50% de la apuesta
-    fi
-
-    # Línea 3 (inferior)
-    if [[ "$slot3_1" == "$slot3_2" && "$slot3_2" == "$slot3_3" && "$slot3_3" == "$slot3_4" ]]; then
-        echo "¡Ganaste 100% en la línea inferior! 🎉"
-        ganar=$((ganar + apuesta))  # Premio 100% de la apuesta
-    elif [[ "$slot3_1" == "$slot3_2" || "$slot3_2" == "$slot3_3" || "$slot3_3" == "$slot3_4" ]]; then
-        echo "¡Ganaste 50% en la línea inferior! 🤑"
-        ganar=$((ganar + apuesta / 2))  # Premio 50% de la apuesta
-    fi
-
-    # Verificar si el jugador ganó en alguna línea
     if (( ganar > 0 )); then
         echo "¡Ganaste $ganar en total!"
-        saldo=$((saldo + ganar))  # Sumar al saldo
+        saldo=$((saldo + ganar))
     else
         echo "¡No ganaste esta vez!"
-        saldo=$((saldo - apuesta))  # Restar la apuesta del saldo
+        saldo=$((saldo - apuesta)) 
     fi
 
-    # Si el jugador pidió un préstamo, agregar un interés del 10% sobre el préstamo
-    if (( saldo > 50 )); then
+    # Descomptar l’interès si hi havia préstec activo
+    if [[ "$prestamo_activo" == true && $saldo -ge 55 ]]; then
         interes=$((50 * 10 / 100))
         saldo=$((saldo - interes))
-        echo "Se ha descontado un interés del 10% sobre el préstamo. Deberás devolver $interes."
+        prestamo_activo=false
+        echo "🔻 Se ha descontado un interés de $interes por el préstamo."
     fi
 
-    # Guardar el nuevo saldo en el archivo
     echo $saldo > saldo.txt
 
-    # Preguntar si el jugador quiere seguir jugando
     read -p "¿Quieres jugar de nuevo? (s/n): " choice
     if [[ "$choice" != "s" ]]; then
+        if [ -f "keepgambing.png" ]; then
+            transmit_png "keepgambing.png"
+        fi
         break
     fi
 done
