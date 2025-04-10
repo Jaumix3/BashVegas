@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Verificar si el archivo de saldo existe
-if [ ! -f "saldo.txt" ]; then
-    echo "100" > saldo.txt
+if [ ! -f ~/saldo.txt ]; then
+    echo "100" | base64 > ~/saldo.txt
 fi
 
-saldo=$(cat saldo.txt)
+saldo=$(base64 -d <<< cat ~/saldo.txt)
 
 # Definir símbolos con distribución ajustada (menos probabilidad de ganar)
 symbols=("1" "1" "A" "A" "B" "B" "C" "C" "C" "C")
@@ -122,7 +122,7 @@ while true; do
         echo "🔻 Se ha descontado un interés de $interes por el préstamo."
     fi
 
-    echo $saldo > saldo.txt
+    echo $saldo | base64 > ~/saldo.txt
 
     read -p "¿Quieres jugar de nuevo? (s/n): " choice
     if [[ "$choice" != "s" ]]; then
