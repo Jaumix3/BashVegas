@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Verificar si el archivo de saldo existe
-if [ ! -f "saldo.txt" ]; then
+if [ ! -f "~/saldo.txt" ]; then
     echo "100" > saldo.txt
 fi
 
