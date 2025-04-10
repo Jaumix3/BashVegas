@@ -1,4 +1,4 @@
-Three Gamblers Making Gambling Not So Bad
+*Three Gamblers Making Gambling Not So Bad*
 
 This is a casino made in Bash, so you can gamble without worrying about your money. We all know you're poor (just like us).
 
