@@ -1,17 +1,16 @@
 #!/bin/bash
 
-
 guardar_saldo() {
-    echo "$1" > saldo.txt
+    local saldo=$1
+    echo -n "$saldo" | base64 > ~/saldo.txt
 }
 
 cargar_saldo() {
-    if [[ ! -f saldo.txt ]]; then
-        echo "No se encontró saldo guardado."
-        read -p "Introduce el saldo inicial: " saldo_inicial
-        echo "$saldo_inicial" > saldo.txt
+    if [[ ! -f ~/saldo.txt ]]; then
+        echo "100" | base64 > ~/saldo.txt
     fi
-    cat saldo.txt
+    local saldo_base64=$(cat ~/saldo.txt)
+    echo $(echo "$saldo_base64" | base64 --decode)
 }
 
 mostrar_ruleta() {
@@ -35,7 +34,6 @@ mostrar_ruleta() {
         fi
     done
     
-
     echo "|          ${ruleta[-1]}        |"
     echo "| ${ruleta[0]}  | ${ruleta[1]}  | ${ruleta[2]}  | ${ruleta[3]}  |"
     echo "| ${ruleta[4]}  | ${ruleta[5]}  | ${ruleta[6]}  | ${ruleta[7]}  |"
@@ -53,7 +51,6 @@ mostrar_ruleta() {
     echo "Bola en $numero"
 }
 
-# Función de la apuesta
 Apuesta() {
     local saldo=$1
     local apuesta
