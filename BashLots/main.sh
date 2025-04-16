@@ -8,7 +8,7 @@ fi
 saldo=$(base64 -d <<< cat ~/saldo.txt)
 
 # Definir símbolos con distribución ajustada (menos probabilidad de ganar)
-symbols=("1" "1" "A" "A" "B" "B" "C" "C" "C" "C")
+symbols=("1" "1" "A" "A" "B" "B" "C" "C" "D" "D" "E" "E" "F" "F")
 
 # Línies de premi: llistes d’índexs del tauler (0 a 14)
 linies=(

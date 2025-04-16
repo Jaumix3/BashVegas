@@ -13,14 +13,7 @@ declare -a dealerHand=()
 selected=0
 buttons=("Hit" "Stand")
 
-transmit_sixel() {
-    if command -v img2sixel >/dev/null 2>&1; then
-        img2sixel "$1"
-    else
-        echo "Error: img2sixel is not installed. Please install it to use this feature."
-        exit 1
-    fi
-}
+
 
 function genDeck() {
     local suits=("♤" "♡" "♢" "♧")
@@ -246,9 +239,6 @@ function main() {
             if [[ -z "$choice" || "$choice" == "y" || "$choice" == "Y" ]]; then
                 break
             elif [[ "$choice" == "n" || "$choice" == "N" ]]; then
-                if [ -f "keepgambing.png" ]; then
-                    transmit_sixel "keepgambing.png"
-                fi
                 exit 0
             else
                 tput cup 15 10

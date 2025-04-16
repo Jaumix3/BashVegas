@@ -22,6 +22,14 @@ draw_ui() {
     done
 }
 
+transmit_sixel() {
+    if command -v img2sixel >/dev/null 2>&1; then
+        img2sixel "$1"
+    else
+        echo "Error: img2sixel is not installed. Please install it to use this feature."
+        exit 1
+    fi
+}
 
 while true; do
     draw_ui
@@ -51,6 +59,9 @@ while true; do
             elif [ $selected -eq 3 ]; then
                 # Exit the script
                 clear
+                if [ -f "keepgambing.png" ]; then
+                    transmit_sixel "keepgambing.png"
+                fi
                 exit 0
             fi
             ;;
