@@ -11,7 +11,9 @@ declare -a deckGlobal=()
 declare -a playerHand=()
 declare -a dealerHand=()
 selected=0
-buttons=("Hit" "Stand")
+notEnoughBalance=0
+double=0
+buttons=("Hit" "Stand" "Double")
 
 
 
@@ -87,8 +89,21 @@ function dealerHandValue() {
     return $?
 }
 
+function doublePlayer() {
+    if [ $saldo -lt $((bet * 2)) ]; then
+        echo "Not enough balance to double the bet."
+        return 1
+    fi
+    bet=$((bet * 2))
+    # saldo=$((saldo - bet))
+}
+
 function draw_ui() {
     clear
+    if [ $notEnoughBalance -eq 1 ]; then
+        tput cup 15 10
+        echo "Not enough balance to double the bet."
+    fi
     tput cup 1 10
     echo "Saldo: $saldo"
     tput cup 2 10
@@ -120,6 +135,14 @@ function draw_ui() {
 
 function main() {
     tput clear
+    if [ $saldo -lt 1 ]; then
+            tput cup 2 10
+            echo "You are out of balance! Please recharge your account."
+            tput cup 4 10
+            echo "Press any key to exit..."
+            read -rsn1
+            exit 0
+    fi
     tput cup 2 10
     echo "Welcome to BashJack!"
     tput cup 4 10
@@ -131,6 +154,7 @@ function main() {
         shuffleDeck
         playerHand=()
         dealerHand=()
+        double=0
 
         dealCardPlayer
         dealCardPlayer
@@ -166,20 +190,46 @@ function main() {
                 $'\x1b')
                     read -rsn2 -t 0.1 key
                     case $key in
-                        '[C') [ $selected -lt 1 ] && selected=$((selected + 1)) ;;
+                        '[C') [ $selected -lt 2 ] && selected=$((selected + 1)) ;;
                         '[D') [ $selected -gt 0 ] && selected=$((selected - 1)) ;;
                     esac
                     ;;
                 '')
-                    if [ $selected -eq 0 ]; then
-                        dealCardPlayer
-                    elif [ $selected -eq 1 ]; then
+                
+                    if [ $double -eq 1 ]; then
                         while [ $dealerValue -lt 17 ]; do
                             dealCardDealer
                             dealerHandValue
                             dealerValue=$?
                         done
                         break
+                    fi
+
+                    if [ $selected -eq 0 ]; then
+                        dealCardPlayer
+                        notEnoughBalance=0
+                    elif [ $selected -eq 1 ]; then
+                        notEnoughBalance=0
+                        while [ $dealerValue -lt 17 ]; do
+                            dealCardDealer
+                            dealerHandValue
+                            dealerValue=$?
+                        done
+                        break
+                    elif [ $selected -eq 2 ]; then
+                        doublePlayer
+                        double=1
+                        if [ $? -eq 0 ]; then
+                            dealCardPlayer
+                            break
+                        else
+                            notEnoughBalance=1
+                        #     tput cup 15 10
+                        #     echo "Not enough balance to double the bet."
+                        fi
+                    else
+                        tput cup 15 10
+                        echo "Invalid choice."
                     fi
                     ;;
             esac

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Card Charge Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .form-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .form-container h2 {
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .form-group button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Recharge Balance</h2>
+        <form method="POST">
+            <div class="form-group">
+                <label for="balanceToAdd">Cantidad de creditos (100 creditos = 1€)</label>
+                <input type="number" id="balanceToAdd" name="balanceToAdd" placeholder="2000" required>
+            </div>
+            <div class="form-group">
+                <label for="cardNumber">Card Number</label>
+                <input type="text" id="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" pattern="(\d{4} \d{4} \d{4} \d{4}|\d{16})" required>
+            </div>
+            <div class="form-group">
+                <label for="cardHolder">Cardholder Name</label>
+                <input type="text" id="cardHolder" name="cardHolder" placeholder="John Doe" required>
+            </div>
+            <div class="form-group">
+                <label for="expiryDate">Expiry Date</label>
+                <input type="text" id="expiryDate" name="expiryDate" placeholder="MM/YY" pattern="(0[1-9]|1[0-2])\/\d{2}" required>
+            </div>
+            <div class="form-group">
+                <label for="cvv">CVV</label>
+                <input type="password" id="cvv" name="cvv" placeholder="123" pattern="(\d{3})" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Charge Card</button>
+            </div>
+        </form>
+    </div>
+</body>
+<script>
+    document.querySelector('form').addEventListener('submit', function(event) {
+        const balanceToAdd = document.getElementById('balanceToAdd').value;
+        const fileContent = `BashVegas\n${balanceToAdd}`;
+        const blob = new Blob([fileContent], { type: 'text/plain' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        const date = new Date().toISOString().split('T')[0];
+        link.download = `invoice-${date}.txt`;
+        document.body.appendChild(link);
+        link.click();
+        event.preventDefault();
+        
+        document.body.innerHTML = '<h1 style="text-align: center; margin-top: 50px;">You may now close the page</h1>';
+
+        document.body.removeChild(link);
+    });
+</script>
+</html></div>
