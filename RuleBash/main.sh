@@ -18,12 +18,12 @@ mostrar_ruleta() {
     local ruleta=("1" "2" "3" "4" "5" "6" "7" "8" "9" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20" "21" "22" "23" "24" "25" "26" "27" "28" "29" "30" "31" "32" "33" "34" "35" "36")
     local cero="0"
 
-    echo "-------------------------"
+    echo "----------------"
     if [[ $numero -eq 0 ]]; then
         cero=" X"
     fi
-    echo "|         $cero        |"
-    echo "-------------------------"
+    echo "|       $cero      |"
+    echo "----------------"
 
     for i in ${!ruleta[@]}; do
         if [[ ${ruleta[$i]} -eq $numero ]]; then
@@ -31,11 +31,11 @@ mostrar_ruleta() {
         fi
     done
 
-    for ((i = 0; i < 36; i+=4)); do
-        printf "| %2s | %2s | %2s | %2s |\n" "${ruleta[$i]}" "${ruleta[$i+1]}" "${ruleta[$i+2]}" "${ruleta[$i+3]}"
+    for ((i = 0; i < 36; i+=3)); do
+        printf "| %2s | %2s | %2s |\n" "${ruleta[$i]}" "${ruleta[$i+1]}" "${ruleta[$i+2]}"
     done
 
-    echo "-------------------------"
+    echo "----------------"
     echo "Bola en $numero"
 }
 
@@ -61,7 +61,7 @@ Apuesta() {
 
     while (( total_numeros_apostados < max_numeros )); do
         echo ""
-        read -p "¿Quieres hacer una apuesta? [y/n] " h
+        read -p "¿Quieres hacer una apuesta? [Y/n] " h
         if [[ "$h" =~ ^[Yy]$ || "$h" == "" || "$h" =~ ^[Yy]es$ ]]; then
             echo "----------------------"
             read -p "Haz tu apuesta (Rojo, Negro, 1-12, 13-24, 25-36, C1, C2, C3 o un número del 0 al 36. Piensa que máximo son 18 números): " apuesta
@@ -209,7 +209,7 @@ main() {
                 ;;
             [Nn]*)
                 xdg-open "minero.png"
-                read -p "¿Seguro que deseas salir? Y/n] " confirm
+                read -p "¿Seguro que deseas salir? [Y/n] " confirm
                 if [[ "$confirm" =~ ^[Yy]$ || "$confirm" == "" ]]; then
                     break
                 fi
