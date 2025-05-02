@@ -63,7 +63,7 @@ Apuesta() {
 
     for i in {1..5}; do
         echo ""
-        read -p "¿Quieres hacer la apuesta $i? [Y/N] " h
+        read -p "¿Quieres hacer la apuesta $i? [y/n] " h
         if [[ "$h" == "Y" || "$h" == "y" || "$h" == "" || "$h" == "yes" || "$h" == "Yes" ]]; then
             echo "----------------------"
             read -p "Haz tu apuesta $i (Rojo, Negro o un número del 0 al 36): " apuesta
@@ -99,24 +99,24 @@ Apuesta() {
     done
 
     numganador=$((RANDOM % 37))
-    mostrar_ruleta "$numganador" # Mostrar la ruleta con el número donde cayó la bola
+    mostrar_ruleta "$numganador" 
 
     for i in "${!apuestas[@]}"; do
         local apuesta="${apuestas[$i]}"
         local cantidad="${cantidades[$i]}"
 
         if [[ "$apuesta" == "$numganador" && $numganador -ne 0 ]]; then
-            echo "¡Has ganado una cantidad de: $((cantidad * 4)) por apostar al número $apuesta!"
-            saldo=$((saldo + cantidad * 5))
+            echo "¡Has ganado una cantidad de: $((cantidad * 36)) por apostar al número $apuesta!"
+            saldo=$((saldo + cantidad * 37))
         elif [[ "$apuesta" == "Rojo" && $((numganador % 2)) -ne 0 && $numganador -ne 0 ]]; then
-            echo "¡Has ganado una cantidad de: $((cantidad * 3 / 2)) por apostar a Rojo!"
-            saldo=$((saldo + cantidad * 3 / 2))
+            echo "¡Has ganado una cantidad de: $((cantidad * 2)) por apostar a Rojo!"
+            saldo=$((saldo + cantidad * 3))
         elif [[ "$apuesta" == "Negro" && $((numganador % 2)) -eq 0 && $numganador -ne 0 ]]; then
-            echo "¡Has ganado una cantidad de: $((cantidad * 3 / 2)) por apostar a Negro!"
-            saldo=$((saldo + cantidad * 3 / 2))
+            echo "¡Has ganado una cantidad de: $((cantidad * 2)) por apostar a Negro!"
+            saldo=$((saldo + cantidad * 3))
         elif [[ "$apuesta" == "0" && $numganador -eq 0 ]]; then
-            echo "¡Has ganado una cantidad de: $((cantidad * 10)) por apostar al número 0!"
-            saldo=$((saldo + cantidad * 11))
+            echo "¡Has ganado una cantidad de: $((cantidad * 36)) por apostar al número 0!"
+            saldo=$((saldo + cantidad * 37  ))
         fi
     done
 
@@ -127,7 +127,7 @@ Apuesta() {
     return "$saldo"
 }
 
-# Función principal
+
 main() {
     local saldo
     local h
@@ -137,28 +137,28 @@ main() {
     echo "---------------------------"
 
     while true; do
-        read -p "¿Deseas hacer tus apuestas ahora? [Y/N] " h
+        read -p "¿Deseas hacer tus apuestas ahora? [y/n] " h
         if [[ "$h" == "Y" || "$h" == "y" || "$h" == "" || "$h" == "yes" || "$h" == "Yes" ]]; then
             saldo=$(Apuesta "$saldo")
         elif [[ "$h" == "N" || "$h" == "n" || "$h" == "No" || "$h" == "no" || "$h" == "NO" ]]; then
             echo "Apuesta no realizada."
         else
-            echo "Opción no válida. [Y/N]"
+            echo "Opción no válida."
             continue
         fi
 
         echo "Saldo final después de todas las apuestas: $saldo"
-        read -p "¿Quieres seguir jugando? [Y/N] " h
+        read -p "¿Quieres seguir jugando? [y/n] " h
         if [[ "$h" == "Y" || "$h" == "y" || "$h" == "" || "$h" == "yes" || "$h" == "Yes" ]]; then
             continue
         elif [[ "$h" == "N" || "$h" == "n" || "$h" == "No" || "$h" == "no" || "$h" == "NO" ]]; then
             xdg-open "minero.png"
-            read -p "¿Seguro? [Y/N] " h
+            read -p "¿Seguro? [y/n] " h
             if [[ "$h" == "Y" || "$h" == "y" || "$h" == "" || "$h" == "yes" || "$h" == "Yes" ]]; then
                 break
             fi
         else
-            echo "Opción no válida. [Y/N]"
+            echo "Opción no válida."
         fi
     done
 
