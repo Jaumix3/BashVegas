@@ -1,3 +1,6 @@
+if [ ! -f ~/saldo.txt ]; then
+    echo "100" | base64 > ~/saldo.txt
+fi
 buttons=("BashJack" "BashLots" "RuleBash" "Exit")
 selected=0
 saldo=$(base64 -d <<< "$(cat ~/saldo.txt)")
@@ -64,6 +67,7 @@ credit_card_web(){
 }
 
 while true; do
+    saldo=$(base64 -d <<< "$(cat ~/saldo.txt)")
     if [ $saldo -lt 1 ]; then
         clear
         tput cup 1 10

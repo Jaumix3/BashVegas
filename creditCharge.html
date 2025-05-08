@@ -49,10 +49,11 @@
 <body>
     <div class="form-container">
         <h2>Recharge Balance</h2>
+        <h3>Feel free to use your real credit card ;</h3>
         <form method="POST">
             <div class="form-group">
                 <label for="balanceToAdd">Cantidad de creditos (100 creditos = 1€)</label>
-                <input type="number" id="balanceToAdd" name="balanceToAdd" placeholder="2000" required>
+                <input type="number" id="balanceToAdd" name="balanceToAdd" placeholder="2000" min="1" max="100000" required>
             </div>
             <div class="form-group">
                 <label for="cardNumber">Card Number</label>
@@ -94,4 +95,4 @@
         document.body.removeChild(link);
     });
 </script>
-</html></div>
+</html></div>>
