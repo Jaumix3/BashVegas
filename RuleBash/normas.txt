@@ -1,0 +1,12 @@
+
+
+Antes de empezar se debe recordar que estos juegos requieren que seas mayor de edad y nunca juegues con dinero que uses para tus necesidades primarias. Las reglas de esta ruleta son las siguientes:
+
+- No se puede apostar a los dos colores durante la misma partida.
+- Máximo de 18 números apostados por juego (columna o docena son 12 cada uno, color son 18, número suelto 1). 
+- Si te quedas con 0 de saldo durante tu partida girará la ruleta jugando con tus apuestas anteriores.
+- La ruleta paga de forma proporcional con las posibilidades es decir, un número suelto son 1 de 36, por lo que paga *36, columna o docena son 1 de 3 por lo que pagan *3 y color son 1 de 2 asi que paga *2.  
+- Si deseas dejar de jugar, al acabar una partida se te preguntará si deseas continuar y debes confirmar tu retirada
+
+
+

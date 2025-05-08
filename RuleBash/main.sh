@@ -194,14 +194,31 @@ Apuesta() {
     echo "Saldo actual: $saldo"
 }
 
+normas(){
+    read -p "¿Deseas 'E'mpezar o leer las 'n'ormas? [E/n] " pk
+    case "$pk" in
+        [Ee]*|"")
+            ;;
+        [Nn]*)
+            SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+            cat "$SCRIPT_DIR/normas.txt"
+            ;;
+        *)
+            echo "Opción no válida."
+            ;;
+    esac
+}
+
 main() {
     local saldo
     saldo=$(cargar_saldo)
+    normas
+
     echo "Bienvenido a la ruleta, tu saldo es: $saldo"
     echo "---------------------------"
 
     while true; do
-        read -p "¿Deseas empezar? [Y/n] " h
+        read -p "¿Deseas continuar? [Y/n] " h
         case "$h" in
             [Yy]*|"")
                 Apuesta "$saldo"
