@@ -81,10 +81,11 @@ while true; do
     fi
 
     read -p "¿Quieres jugar de nuevo? (S/n): " choice
-    if [[ "$choice" != "s" or "S" ]]; then
+    if [[ "$choice" != "s" && "$choice" != "S" ]]; then
         if [ -f "keepgambing.png" ]; then
-            transmit_png "keepgambing.png"
+        transmit_png "keepgambing.png"
         fi
         break
     fi
 done
+
