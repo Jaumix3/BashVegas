@@ -38,6 +38,8 @@ transmit_png() {
 }
 
 while true; do
+
+
     if (( saldo <= 0 )); then
         echo "¡Te has quedado sin saldo! 😢"
         read -p "¿Te gustaría pedir un préstamo de 50? (s/n): " prestamo

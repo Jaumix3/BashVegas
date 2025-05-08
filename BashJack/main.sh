@@ -72,6 +72,8 @@ function dealCard() {
 function dealCardPlayer() {
     dealCard
     playerHand+=("$card")
+    
+
 }
 
 function dealCardDealer() {
@@ -81,12 +83,14 @@ function dealCardDealer() {
 
 function playerHandValue() {
     calculateHand "${playerHand[@]}"
-    return $?
+    playerValue=$?
+    return $playerValue
 }
 
 function dealerHandValue() {
     calculateHand "${dealerHand[@]}"
-    return $?
+    dealerValue=$?
+    return $dealerValue
 }
 
 function doublePlayer() {
@@ -95,6 +99,7 @@ function doublePlayer() {
         return 1
     fi
     bet=$((bet * 2))
+    return 0
     # saldo=$((saldo - bet))
 }
 
@@ -217,11 +222,22 @@ function main() {
                         done
                         break
                     elif [ $selected -eq 2 ]; then
-                        doublePlayer
                         double=1
+                        doublePlayer
+                        
                         if [ $? -eq 0 ]; then
                             dealCardPlayer
-                            break
+                            playerHandValue
+                            # break
+                            if [ $playerValue -gt 20 ]; then
+                                break
+                            fi
+                            while [ $dealerValue -lt 17 ]; do
+                                dealCardDealer
+                                dealerHandValue
+                                dealerValue=$?
+                            done
+                        break
                         else
                             notEnoughBalance=1
                         #     tput cup 15 10
@@ -267,6 +283,9 @@ function main() {
             tput cup 7 10
             echo "Blackjack! Dealer wins!"
             saldo=$((saldo - bet))
+        elif [ $playerValue -eq $dealerValue ]; then
+            tput cup 7 10
+            echo "It's a tie!"
         elif [ $playerValue -gt $dealerValue ]; then
             tput cup 7 10
             echo "Player wins!"
@@ -283,6 +302,54 @@ function main() {
         echo $saldo | base64 > ~/saldo.txt
 
         while true; do
+            clear
+            tput cup 2 10
+            echo "Final Hands:"
+            tput cup 4 10
+            echo "Player Hand: ${playerHand[@]}"
+            # playerHandValue
+            # playerValue=$?
+            # tput cup 5 10
+            # echo "Player Hand Value: $playerValue"
+            tput cup 5 10
+            echo "Dealer Hand: ${dealerHand[@]}"
+            # dealerHandValue
+            # dealerValue=$?
+            # tput cup 8 10
+            # echo "Dealer Hand Value: $dealerValue"
+            # tput cup 10 10
+
+            if [ $playerValue -gt 21 ]; then
+                tput cup 7 10
+                echo "Player bust! Dealer wins!"
+                saldo=$((saldo - bet))
+            elif [ $dealerValue -gt 21 ]; then
+                tput cup 7 10
+                echo "Dealer bust! Player wins!"
+                saldo=$((saldo + bet))
+            elif [ $playerValue -eq 21 ]; then
+                tput cup 7 10
+                echo "Blackjack! Player wins!"
+                saldo=$((saldo + bet * 2))
+            elif [ $dealerValue -eq 21 ]; then
+                tput cup 7 10
+                echo "Blackjack! Dealer wins!"
+                saldo=$((saldo - bet))
+            elif [ $playerValue -eq $dealerValue ]; then
+                tput cup 7 10
+                echo "It's a tie!"
+            elif [ $playerValue -gt $dealerValue ]; then
+                tput cup 7 10
+                echo "Player wins!"
+                saldo=$((saldo + bet))
+            elif [ $playerValue -lt $dealerValue ]; then
+                tput cup 7 10
+                echo "Dealer wins!"
+                saldo=$((saldo - bet))
+            else
+                tput cup 7 10
+                echo "It's a tie!"
+            fi
             tput cup 8 10
             echo "Want to continue (Y/n)?"
             read -rsn1 choice
