@@ -16,26 +16,25 @@ cargar_saldo() {
 
 mostrar_ruleta() {
     local numero=$1
-    local ruleta=({1..36})
+    local ruleta=()
+    for ((i=1; i<=36; i++)); do
+        ruleta+=("$i")
+    done
     local cero="0"
-
     echo "----------------"
     if [[ $numero -eq 0 ]]; then
         cero=" X"
     fi
     echo "|       $cero      |"
     echo "----------------"
-
     for i in ${!ruleta[@]}; do
         if [[ ${ruleta[$i]} -eq $numero ]]; then
             ruleta[$i]=" X"
         fi
     done
-
     for ((i = 0; i < 36; i+=3)); do
         printf "| %2s | %2s | %2s |\n" "${ruleta[$i]}" "${ruleta[$i+1]}" "${ruleta[$i+2]}"
     done
-
     echo "----------------"
     echo "Bola en $numero"
 }
@@ -62,13 +61,11 @@ Apuesta() {
 
     while (( total_numeros_apostados < max_numeros )); do
         echo ""
-        read -p "¿Quieres hacer una apuesta? [Y/n] " h
+        read -p "¿Apostamos? [Y/n] " h
         if [[ "$h" =~ ^[Yy]$ || "$h" == "" || "$h" =~ ^[Yy]es$ ]]; then
-            echo "----------------------"
-
             apuesta=$(dialog --clear --stdout \
                 --title "Selecciona tu apuesta" \
-                --menu "¿Dónde quieres apostar?" 20 50 20 \
+                --menu "¿Dónde quieres apostar?" 20 50 40 \
                 Rojo "Color Rojo (18 números)" \
                 Negro "Color Negro (18 números)" \
                 "1-12" "Primera docena" \
@@ -77,9 +74,45 @@ Apuesta() {
                 C1 "Columna 1" \
                 C2 "Columna 2" \
                 C3 "Columna 3" \
-                $(for i in {0..36}; do echo "$i Número $i"; done))
+                0 "Número 0" \
+                1 "Número 1" \
+                2 "Número 2" \
+                3 "Número 3" \
+                4 "Número 4" \
+                5 "Número 5" \
+                6 "Número 6" \
+                7 "Número 7" \
+                8 "Número 8" \
+                9 "Número 9" \
+                10 "Número 10" \
+                11 "Número 11" \
+                12 "Número 12" \
+                13 "Número 13" \
+                14 "Número 14" \
+                15 "Número 15" \
+                16 "Número 16" \
+                17 "Número 17" \
+                18 "Número 18" \
+                19 "Número 19" \
+                20 "Número 20" \
+                21 "Número 21" \
+                22 "Número 22" \
+                23 "Número 23" \
+                24 "Número 24" \
+                25 "Número 25" \
+                26 "Número 26" \
+                27 "Número 27" \
+                28 "Número 28" \
+                29 "Número 29" \
+                30 "Número 30" \
+                31 "Número 31" \
+                32 "Número 32" \
+                33 "Número 33" \
+                34 "Número 34" \
+                35 "Número 35" \
+                36 "Número 36")
 
-            if [[ $? -ne 0 ]]; then
+            if [[ $? -ne 0 || -z "$apuesta" ]]; then
                 echo "Apuesta cancelada"
                 continue
             fi
@@ -118,33 +151,17 @@ Apuesta() {
 
             apuestas+=("$apuesta")
 
-            # Selector de cantidad usando un control de barra (slider).
-            while true; do
-                canta=$(dialog --clear --stdout \
-                    --title "Cantidad a apostar" \
-                    --gauge "Saldo disponible: $saldo\nSelecciona la cantidad a apostar:" 10 50 0 \
-                    10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 250 300 350 400 450 500)
+            cantidad=$(dialog --clear --stdout \
+                --title "Cantidad a apostar" \
+                --rangebox "Selecciona la cantidad a apostar (Saldo actual: $saldo)" 0 50 1 100 "$saldo")
 
-                if [[ $? -ne 0 || -z "$canta" ]]; then
-                    echo "Apuesta cancelada."
-                    continue 2
-                fi
+            if [[ $? -ne 0 || -z "$cantidad" || ! "$cantidad" =~ ^[0-9]+$ || "$cantidad" -le 0 || "$cantidad" -gt "$saldo" ]]; then
+                echo "Cantidad inválida o apuesta cancelada."
+                continue
+            fi
 
-                if ! [[ "$canta" =~ ^[0-9]+$ ]]; then
-                    dialog --msgbox "Introduce un número válido." 8 40
-                    continue
-                fi
-
-                if (( canta <= 0 || canta > saldo )); then
-                    dialog --msgbox "Cantidad fuera del rango disponible." 8 40
-                    continue
-                fi
-
-                break
-            done
-
-            cantidades+=("$canta")
-            saldo=$((saldo - canta))
+            cantidades+=("$cantidad")
+            saldo=$((saldo - cantidad))
             guardar_saldo "$saldo"
         else
             break
@@ -160,34 +177,51 @@ Apuesta() {
     for idx in "${!apuestas[@]}"; do
         local apuesta="${apuestas[$idx]}"
         local cantidad="${cantidades[$idx]}"
-
         case "$apuesta" in
             Rojo)
-                [[ "$color" == "Rojo" ]] && g=$((cantidad * 2)) && ganancia=$((ganancia + g)) && echo "Ganaste $g en Rojo"
+                if [[ "$color" == "Rojo" ]]; then
+                    ganancia=$((ganancia + cantidad * 2))
+                fi
                 ;;
             Negro)
-                [[ "$color" == "Negro" ]] && g=$((cantidad * 2)) && ganancia=$((ganancia + g)) && echo "Ganaste $g en Negro"
+                if [[ "$color" == "Negro" ]]; then
+                    ganancia=$((ganancia + cantidad * 2))
+                fi
                 ;;
             1-12)
-                (( numganador >= 1 && numganador <= 12 )) && g=$((cantidad * 3)) && ganancia=$((ganancia + g)) && echo "Ganaste $g en 1-12"
+                if (( numganador >= 1 && numganador <= 12 )); then
+                    ganancia=$((ganancia + cantidad * 3))
+                fi
                 ;;
             13-24)
-                (( numganador >= 13 && numganador <= 24 )) && g=$((cantidad * 3)) && ganancia=$((ganancia + g)) && echo "Ganaste $g en 13-24"
+                if (( numganador >= 13 && numganador <= 24 )); then
+                    ganancia=$((ganancia + cantidad * 3))
+                fi
                 ;;
             25-36)
-                (( numganador >= 25 && numganador <= 36 )) && g=$((cantidad * 3)) && ganancia=$((ganancia + g)) && echo "Ganaste $g en 25-36"
+                if (( numganador >= 25 && numganador <= 36 )); then
+                    ganancia=$((ganancia + cantidad * 3))
+                fi
                 ;;
             C1)
-                (( numganador % 3 == 1 && numganador != 0 )) && g=$((cantidad * 3)) && ganancia=$((ganancia + g)) && echo "Ganaste $g en Columna 1"
+                if (( numganador % 3 == 1 && numganador != 0 )); then
+                    ganancia=$((ganancia + cantidad * 3))
+                fi
                 ;;
             C2)
-                (( numganador % 3 == 2 && numganador != 0 )) && g=$((cantidad * 3)) && ganancia=$((ganancia + g)) && echo "Ganaste $g en Columna 2"
+                if (( numganador % 3 == 2 && numganador != 0 )); then
+                    ganancia=$((ganancia + cantidad * 3))
+                fi
                 ;;
             C3)
-                (( numganador % 3 == 0 && numganador != 0 )) && g=$((cantidad * 3)) && ganancia=$((ganancia + g)) && echo "Ganaste $g en Columna 3"
+                if (( numganador % 3 == 0 && numganador != 0 )); then
+                    ganancia=$((ganancia + cantidad * 3))
+                fi
                 ;;
             *)
-                [[ "$apuesta" -eq "$numganador" ]] && g=$((cantidad * 36)) && ganancia=$((ganancia + g)) && echo "Ganaste $g en el número $apuesta"
+                if [[ "$apuesta" -eq "$numganador" ]]; then
+                    ganancia=$((ganancia + cantidad * 36))
+                fi
                 ;;
         esac
     done
@@ -198,49 +232,54 @@ Apuesta() {
 }
 
 normas() {
-read -p "¿Deseas 'E'mpezar o leer las 'n'ormas? [E/n] " pk
-case "$pk" in
-[Ee]|"") ;;
-[Nn])
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cat "$SCRIPT_DIR/normas.txt"
-;;
-*) echo "Opción no válida." ;;
-esac
-
-
-
-
-
-
-
-
-
-
-
+    read -p "¿Deseas 'E'mpezar o leer las 'n'ormas? [E/n] " pk
+    case "$pk" in
+        [Ee]*|"")
+            ;;
+        [Nn]*)
+            SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+            cat "$SCRIPT_DIR/normas.txt"
+            ;;
+        *)
+            ;;
+    esac
 }
 
 main() {
-local saldo
-saldo=$(cargar_saldo)
-normas
-echo "Bienvenido a la ruleta, tu saldo es: $saldo"
-echo "---------------------------"
-
-while true; do
-    read -p "¿Deseas continuar? [Y/n] " h
-    case "$h" in
-        [Yy]*|"")
-            Apuesta "$saldo"
-            saldo=$(cargar_saldo)
-            ;;
-        [Nn]*)
-            xdg-open "minero.png"
-            read -p "¿Seguro que deseas salir? [Y/n] " confirm
-            [[ "$confirm" =~ ^[Yy]$ || "$confirm" == "" ]] && break
-            ;;
-        *) echo "Opción no válida." ;;
-    esac
-done
-echo "Gracias por jugar y regalarnos tu dinero <3"
+    local saldo
+    saldo=$(cargar_saldo)
+    normas
+    echo "Bienvenido a la ruleta, tu saldo es: $saldo"
+    while true; do
+        read -p "
+        
+¿Seguimos? [Y/n] 
+        
+        " h
+        case "$h" in
+            [Yy]*|"")
+                Apuesta "$saldo"
+                saldo=$(cargar_saldo)
+                ;;
+            [Nn]*)
+                xdg-open "keepgambing.png"
+                read -p "
+                
+¿Seguro que deseas salir? [Y/n] 
+                
+                " confirm
+                if [[ "$confirm" =~ ^[Yy]$ || "$confirm" == "" ]]; then
+                    break
+                fi
+                ;;
+            *)
+                ;;
+        esac
+    done
+    echo "
+    
+    Gracias por jugar y regalarnos tu dinero <3
+    
+    "
 }
+main
