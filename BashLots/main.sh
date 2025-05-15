@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./varible.sh 
+source ./BashLots/varible.sh 
 
 saldo=$(base64 -d <<< cat ~/saldo.txt)
 
@@ -82,12 +82,14 @@ while true; do
         saldo=$((saldo - apuesta)) 
     fi
 
+    saldo=$(base64 -d <<< cat ~/saldo.txt)
+
     read -p "¿Quieres jugar de nuevo? (S/n): " choice
-    if [[ "$choice" != "n" ]]; then
+    if [[ "$choice" == "n" ]]; then
         if [ -f "keepgambing.png" ]; then
         transmit_png "keepgambing.png"
         fi
-        break
+        exit 0 
     fi
 done
 
