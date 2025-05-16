@@ -14,5 +14,3 @@ transmit_png() {
         builtin printf "\e\\"
     done
 }
-
-transmit_png "$1"
