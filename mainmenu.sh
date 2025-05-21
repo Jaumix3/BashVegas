@@ -1,7 +1,7 @@
 if [ ! -f ~/saldo.txt ]; then
     echo "100" | base64 > ~/saldo.txt
 fi
-buttons=("BashJack" "BashLots" "RuleBash" "Exit")
+buttons=("BashJack" "BashLots" "RuleBash" "Pumpsh" "Exit")
 selected=0
 saldo=$(base64 -d <<< "$(cat ~/saldo.txt)")
 draw_ui() {
@@ -117,10 +117,14 @@ while true; do
                 clear
                 bash ./BashLots/main.sh
             elif [ $selected -eq 2 ]; then
-                # Show rules
+                # Start RuleBash game
                 clear
                 bash ./RuleBash/main.sh
             elif [ $selected -eq 3 ]; then
+                # Start Pumpsh game
+                clear
+                bash ./Pumpsh/main.sh
+            elif [ $selected -eq 4 ]; then
                 # Exit the script
                 clear
                 if [ -f "keepgambing.png" ]; then

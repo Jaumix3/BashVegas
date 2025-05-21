@@ -1,5 +1,5 @@
 #!/bin/bash
-# Pump Casino
+# Pumpsh Casino
 
 # load balance
 if [ ! -f ~/saldo.txt ]; then
@@ -7,7 +7,7 @@ if [ ! -f ~/saldo.txt ]; then
 fi
 saldo=$(base64 -d <<<"$(cat ~/saldo.txt)")
 
-buttons=("Double" "Stop")
+buttons=("Double" "Next" "Stop")
 selected=0
 popped=0
 stopped=0
@@ -44,7 +44,7 @@ function main() {
             read -rsn1
             exit 0
     fi
-    tput cup 2 10; echo "Welcome to Pump Casino!"
+    tput cup 2 10; echo "Welcome to Pumpsh!"
     tput cup 4 10; echo "Press any key to start..."
     read -rsn1
 
@@ -59,6 +59,9 @@ function main() {
             tput cup 3 10; read -p "Bet: " bet
         done
 
+        # debit stake immediately
+        saldo=$((saldo - bet))
+
         multiplierRaw=0  # 0..100 (tenths)
         popped=0
         selected=0
@@ -66,55 +69,75 @@ function main() {
         # game loop
         while true; do
             draw_ui
-        read -rsn1 -t 0.5 key
-        case $key in
+
+            # read one key with timeout
+            read -rsn1 key
+            # tput cup 0 0; echo $key
+            # handle arrow keys
+            # if [[ $key == $'\x1b'  ]]; then
+            #     read -rsn2 -t 0.1 rest
+            #     key+=$rest
+            # fi
+
+            if [ $stopped -eq 1 ]; then
+                break
+            fi
+            
+            case $key in
                 $'\x1b')
-                    read -rsn2 -t 0.25 key
+                    read -rsn2 -t 0.1 key
                     case $key in
-                        '[C') [ $selected -lt 1 ] && selected=$((selected + 1)) ;;
+                        '[C') [ $selected -lt 2 ] && selected=$((selected + 1)) ;;
                         '[D') [ $selected -gt 0 ] && selected=$((selected - 1)) ;;
                     esac
                     ;;
-                $'\n')
-                        if [ $selected -eq 0 ]; then
-                            # Double
-                            if [ $((bet * 2)) -le $saldo ]; then
-                                bet=$((bet * 2))
-                            else
-                                tput cup 10 10; echo "Not enough balance to double."
-                                sleep 1
-                            fi
-                        elif [ $selected -eq 1 ]; then
-                            # Stop
-                            stopped=1
-                            break
+                '')       # Enter key
+                
+                    if [ $selected -eq 2 ]; then
+                        # Stop
+                        stopped=1
+                        continue
+                    fi
+                    if [ $selected -eq 1 ]; then
+                        # Next
+                        # inflate and check pop
+                        multiplierRaw=$((multiplierRaw + 1))
+                        [ $multiplierRaw -gt 100 ] && multiplierRaw=100
+                        if (( RANDOM % 100 < multiplierRaw )); then
+                            popped=1
+                            continue
                         fi
-                        ;;
-                    # elif [ $selected -eq 1 ]; then
-                    #     break
-                    # fi
-                    # ;;
-            esac          
-            if [ $stopped -eq 1 ]; then
-                break
-            fi  
-            # inflate
-            multiplierRaw=$((multiplierRaw + 1))
-            [ $multiplierRaw -gt 100 ] && multiplierRaw=100
-
-            # chance to pop: roll 0..99, pop if < multiplierRaw
-            if (( RANDOM % 100 < multiplierRaw )); then
-                popped=1
+                    fi
+                    if [ $selected -eq 0 ]; then
+                        # Double
+                        if [ $((bet * 2)) -le $saldo ]; then
+                            bet=$((bet * 2))
+                        else
+                            tput cup 10 10; echo "Not enough balance to double."
+                            sleep 1
+                        fi
+                        continue
+                    fi
+                    ;;
+            esac
+            # multiplierRaw=$((multiplierRaw + 1))
+            # [ $multiplierRaw -gt 100 ] && multiplierRaw=100
+            # if (( RANDOM % 100 < multiplierRaw )); then
+            #     popped=1
+            #     break
+            # fi
+            if [ $popped -eq 1 ]; then
+                # balloon popped
                 break
             fi
-        done                             # <-- close game loop
+        done  # game loop                        # <-- close game loop
 
         clear
         tput cup 2 10; echo "Result:"
         if [ $popped -eq 1 ]; then
             tput cup 4 10; echo "Balloon popped at $((multiplierRaw/10)).$((multiplierRaw%10))x"
             tput cup 6 10; echo "You lose your bet of $bet"
-            saldo=$((saldo - bet))
+            # stake already debited above, so no further change
         else
             local win=$(( bet * multiplierRaw / 10 ))
             tput cup 4 10; echo "You stopped at $((multiplierRaw/10)).$((multiplierRaw%10))x"
@@ -127,6 +150,17 @@ function main() {
 
         # continue?
         while true; do
+            clear
+            tput cup 2 10; echo "Result:"
+            if [ $popped -eq 1 ]; then
+                tput cup 4 10; echo "Balloon popped at $((multiplierRaw/10)).$((multiplierRaw%10))x"
+                tput cup 6 10; echo "You lose your bet of $bet"
+                # stake already debited above, so no further change
+            else
+                local win=$(( bet * multiplierRaw / 10 ))
+                tput cup 4 10; echo "You stopped at $((multiplierRaw/10)).$((multiplierRaw%10))x"
+                tput cup 6 10; echo "You win: $win"
+            fi
             tput cup 8 10; echo "Continue? (Y/n)"
             read -rsn1 choice
             if [[ -z $choice || $choice =~ [Yy] ]]; then

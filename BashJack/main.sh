@@ -322,30 +322,30 @@ function main() {
             if [ $playerValue -gt 21 ]; then
                 tput cup 7 10
                 echo "Player bust! Dealer wins!"
-                saldo=$((saldo - bet))
+                
             elif [ $dealerValue -gt 21 ]; then
                 tput cup 7 10
                 echo "Dealer bust! Player wins!"
-                saldo=$((saldo + bet))
+                
             elif [ $playerValue -eq 21 ]; then
                 tput cup 7 10
                 echo "Blackjack! Player wins!"
-                saldo=$((saldo + bet * 2))
+                
             elif [ $dealerValue -eq 21 ]; then
                 tput cup 7 10
                 echo "Blackjack! Dealer wins!"
-                saldo=$((saldo - bet))
+                
             elif [ $playerValue -eq $dealerValue ]; then
                 tput cup 7 10
                 echo "It's a tie!"
             elif [ $playerValue -gt $dealerValue ]; then
                 tput cup 7 10
                 echo "Player wins!"
-                saldo=$((saldo + bet))
+
             elif [ $playerValue -lt $dealerValue ]; then
                 tput cup 7 10
                 echo "Dealer wins!"
-                saldo=$((saldo - bet))
+
             else
                 tput cup 7 10
                 echo "It's a tie!"
