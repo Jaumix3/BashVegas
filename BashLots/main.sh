@@ -81,6 +81,7 @@ while true; do
         echo "¡No ganaste esta vez!"
         saldo=$((saldo - apuesta)) 
     fi
+    echo $saldo | base64 > ~/saldo.txt  
 
     saldo=$(base64 -d <<< cat ~/saldo.txt)
 
