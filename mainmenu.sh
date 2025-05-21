@@ -103,7 +103,7 @@ while true; do
         $'\x1b')
             read -rsn2 -t 0.1 key
             case $key in
-                '[C') [ $selected -lt 3 ] && selected=$((selected + 1)) ;;
+                '[C') [ $selected -lt 4 ] && selected=$((selected + 1)) ;;
                 '[D') [ $selected -gt 0 ] && selected=$((selected - 1)) ;;
             esac
             ;;

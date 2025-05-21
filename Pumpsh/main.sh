@@ -96,7 +96,14 @@ function main() {
                     if [ $selected -eq 2 ]; then
                         # Stop
                         stopped=1
-                        continue
+                        multiplierRaw=$((multiplierRaw + 1))
+                        [ $multiplierRaw -gt 100 ] && multiplierRaw=100
+                        if (( RANDOM % 100 < multiplierRaw )); then
+                            popped=1
+                            continue
+                        fi
+                        break
+                        # continue
                     fi
                     if [ $selected -eq 1 ]; then
                         # Next
@@ -112,10 +119,17 @@ function main() {
                         # Double
                         if [ $((bet * 2)) -le $saldo ]; then
                             bet=$((bet * 2))
+                            multiplierRaw=$((multiplierRaw + 1))
+                            [ $multiplierRaw -gt 100 ] && multiplierRaw=100
+                            if (( RANDOM % 100 < multiplierRaw )); then
+                                popped=1
+                                continue
+                            fi
                         else
                             tput cup 10 10; echo "Not enough balance to double."
                             sleep 1
                         fi
+                        
                         continue
                     fi
                     ;;
