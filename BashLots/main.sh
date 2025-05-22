@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source ./BashLots/varible.sh 
-
 saldo=$(base64 -d <<< cat ~/saldo.txt)
 
 # Definir símbolos con distribución ajustada (menos probabilidad de ganar)
@@ -87,9 +85,6 @@ while true; do
 
     read -p "¿Quieres jugar de nuevo? (S/n): " choice
     if [[ "$choice" == "n" ]]; then
-        if [ -f "keepgambing.png" ]; then
-        transmit_png "keepgambing.png"
-        fi
         exit 0 
     fi
 done
