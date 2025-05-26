@@ -72,7 +72,7 @@ function dealCard() {
 function dealCardPlayer() {
     dealCard
     playerHand+=("$card")
-    
+
 
 }
 
@@ -200,7 +200,7 @@ function main() {
                     esac
                     ;;
                 '')
-                
+
                     if [ $double -eq 1 ]; then
                         while [ $dealerValue -lt 17 ]; do
                             dealCardDealer
@@ -224,7 +224,7 @@ function main() {
                     elif [ $selected -eq 2 ]; then
                         double=1
                         doublePlayer
-                        
+
                         if [ $? -eq 0 ]; then
                             dealCardPlayer
                             playerHandValue
@@ -322,19 +322,19 @@ function main() {
             if [ $playerValue -gt 21 ]; then
                 tput cup 7 10
                 echo "Player bust! Dealer wins!"
-                
+
             elif [ $dealerValue -gt 21 ]; then
                 tput cup 7 10
                 echo "Dealer bust! Player wins!"
-                
+
             elif [ $playerValue -eq 21 ]; then
                 tput cup 7 10
                 echo "Blackjack! Player wins!"
-                
+
             elif [ $dealerValue -eq 21 ]; then
                 tput cup 7 10
                 echo "Blackjack! Dealer wins!"
-                
+
             elif [ $playerValue -eq $dealerValue ]; then
                 tput cup 7 10
                 echo "It's a tie!"
