@@ -59,7 +59,7 @@ credit_card_web(){
                 echo $saldo | base64 > ~/saldo.txt
                 rm "$file"
                 sleep 1
-                return 0  
+                return 0
             fi
         done
     sleep 1
