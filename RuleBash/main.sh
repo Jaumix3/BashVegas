@@ -17,6 +17,7 @@ cargar_saldo() {
 mostrar_ruleta() {
     local numero=$1
     local ruleta=()
+    clear
     for ((i=1; i<=36; i++)); do
         ruleta+=("$i")
     done
@@ -36,7 +37,8 @@ mostrar_ruleta() {
         printf "| %2s | %2s | %2s |\n" "${ruleta[$i]}" "${ruleta[$i+1]}" "${ruleta[$i+2]}"
     done
     echo "----------------"
-    echo "Bola en $numero"
+    echo "Bola en $numero, (Rojos: 1 3 5 7 9 12 14 16 18 19 21 23 25 27 30 32 34 36)"
+    echo "Tu apuesta fue: $apuesta"
 }
 
 obtener_color() {
