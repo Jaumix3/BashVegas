@@ -115,16 +115,8 @@ function draw_ui() {
     echo "Bet: $bet"
     tput cup 4 10
     echo "Player Hand: ${playerHand[@]}"
-    # playerHandValue
-    # local playerValue=$?
     tput cup 5 10
-    # echo "Player Hand Value: $playerValue"
-    # tput cup 7 10
     echo "Dealer Hand: ${dealerHand[@]}"
-    # dealerHandValue
-    # local dealerValue=$?
-    # tput cup 8 10
-    # echo "Dealer Hand Value: $dealerValue"
 
     for i in "${!buttons[@]}"; do
         tput cup 7 $((10 + i * 12))

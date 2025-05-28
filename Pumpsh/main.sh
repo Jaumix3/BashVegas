@@ -71,7 +71,6 @@ function main() {
             draw_ui
 
             # read one key with timeout
-            read -rsn1 key
             # tput cup 0 0; echo $key
             # handle arrow keys
             # if [[ $key == $'\x1b'  ]]; then
@@ -79,6 +78,9 @@ function main() {
             #     key+=$rest
             # fi
 
+            
+            read -rsn1 key
+        
             if [ $stopped -eq 1 ]; then
                 break
             fi
